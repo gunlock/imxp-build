@@ -12,7 +12,7 @@ Build once from any Linux/macOS or CI host and produce plugins for all three pla
 
 ## Prerequisites
 
-- **Linux or macOS** host build environment
+- **Linux** host build environment
 - **Docker** (for cross-compilation)
 - **CMake** >= 3.25 and **Ninja** (for local dev preset configuration)
 
@@ -34,14 +34,22 @@ This file is git-ignored so your local paths stay out of version control.
 
 ## Available Presets
 
+### Quick Start
+
+```bash
+cmake --preset config                  # cmake configure step
+cmake --build --preset local:build     # build linux-x64 via Docker
+cmake --build --preset local:deploy    # build & local plugin install
+```
+
 ### Local Development
 
 These presets build for linux-x64 via *Docker*, then deploy and install locally:
 
 ```bash
-cmake --build --preset local:build      # compile linux-x64 via Docker
+cmake --build --preset local:build      # build linux-x64 via Docker
 cmake --build --preset local:deploy     # assemble plugin directory
-cmake --build --preset local:install    # copy to X-Plane plugins dir
+cmake --build --preset local:install    # build & local plugin install
 ```
 
 ### Release
