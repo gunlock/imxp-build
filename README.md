@@ -39,7 +39,7 @@ This file is git-ignored so your local paths stay out of version control.
 ```bash
 cmake --preset config                  # cmake configure step
 cmake --build --preset local:build     # build linux-x64 via Docker
-cmake --build --preset local:deploy    # build & local plugin install
+cmake --build --preset local:install    # build & local plugin install
 ```
 
 ### Local Development
