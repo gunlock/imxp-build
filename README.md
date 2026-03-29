@@ -2,7 +2,7 @@
 
 **A cross-platform C++ build scaffold for X-Plane 11/12 plugins with integrated Dear ImGui**
 
-Build once from any Linux/macOS or CI host and produce plugins for all three platforms:
+Build once from any Linux host and produce plugins for all three platforms:
 
 | Platform | Output |
 |----------|--------|
