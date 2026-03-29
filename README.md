@@ -1,6 +1,6 @@
 # imxp-build
 
-**A cross-platform C++ scaffold for X-Plane 11/12 plugins with integrated Dear ImGui**
+**A cross-platform C++ build scaffold for X-Plane 11/12 plugins with integrated Dear ImGui**
 
 Build once from any Linux/macOS or CI host and produce plugins for all three platforms:
 
