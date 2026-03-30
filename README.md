@@ -102,7 +102,7 @@ This builds all platforms via Docker and creates a GitHub Release with the plugi
 
 ## How It Works
 
-- **Zig** is used as a drop-in C/C++ cross-compiler, targeting Linux (glibc 2.17), Windows (MinGW), and macOS (x86_64 + arm64)
+- **Zig** is used as a drop-in C/C++ cross-compiler, targeting Linux (glibc 2.17), Windows, and macOS (x86_64 + arm64)
 - **llvm-lipo** creates a macOS universal binary from the two architecture builds
 - **Docker** ensures a reproducible build environment regardless of the host OS
 - The X-Plane SDK and Dear ImGui are fetched automatically via CMake's `FetchContent`
