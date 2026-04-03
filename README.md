@@ -4,10 +4,10 @@
 
 Build once from any Linux host and produce plugins for all three platforms:
 
-| Platform | Output |
-|----------|--------|
-| Linux x86_64 | `MyPlugin/lin_x64/MyPlugin.xpl` |
-| Windows x86_64 | `MyPlugin/win_x64/MyPlugin.xpl` |
+| Platform          | Output                          |
+| ----------------- | ------------------------------- |
+| Linux x86_64      | `MyPlugin/lin_x64/MyPlugin.xpl` |
+| Windows x86_64    | `MyPlugin/win_x64/MyPlugin.xpl` |
 | macOS (universal) | `MyPlugin/mac_x64/MyPlugin.xpl` |
 
 ## Prerequisites
@@ -44,7 +44,7 @@ cmake --build --preset local:install   # build & local plugin install
 
 ### Local Development
 
-These presets build for linux-x64 via *Docker*, then deploy and install locally:
+These presets build for linux-x64 via _Docker_, then deploy and install locally:
 
 ```bash
 cmake --build --preset local:build      # build linux-x64 via Docker
@@ -82,12 +82,12 @@ cmake --build --preset docker:clean-image    # remove the Docker image
         └── release.yml            # GitHub Actions: tag -> build -> release
 ```
 
-## Customizing
+## Customizing CMakeLists.txt
 
-1. **Rename the plugin**: search and replace `MyPlugin` / `myplugin` / `MYPLUGIN` across all files
-2. **Add source files**: add them to the `SRC_FILES` list in `CMakeLists.txt`
-3. **Add dependencies**: use `FetchContent` in `CMakeLists.txt` (see the ImGui example)
-4. **Add resources**: copy them in the `deploy` target in `CMakeLists.txt`
+1. **Set plugin name, version, and ImGui font**: Set the `PLUGIN_NAME`, `PLUGIN_VERSION`, and `IMGUI_FONT`. Note the `IMGUI_FONT` built-in options are part of the Dear ImGui source tree in its `./misc/fonts` directory.
+2. **Add source files**: Add to `SRC_FILES` list.
+3. **Add dependencies**: Consider using `FetchContent` (see the ImGui example).
+4. **Add resources**: Copy them to the `deploy` target.
 
 ## Releasing
 
