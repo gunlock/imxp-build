@@ -15,14 +15,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Read plugin name from CMakeLists.txt
+        id: plugin
+        run: |
+          name=$(grep -m1 'set(PLUGIN_NAME' CMakeLists.txt | sed 's/.*"\(.*\)".*/\1/')
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "image=$(echo "$name" | tr '[:upper:]' '[:lower:]')-build" >> "$GITHUB_OUTPUT"
+
       - name: Build Docker image
-        run: docker build -t myplugin-build .
+        run: docker build -t ${{ steps.plugin.outputs.image }} .
 
       - name: Build plugin
-        run: docker run --rm -v "$PWD":/src myplugin-build scripts/build-all.sh
+        run: docker run --rm -v "$PWD":/src ${{ steps.plugin.outputs.image }} scripts/build-all.sh ${{ steps.plugin.outputs.name }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          files: build/docker/deploy/MyPlugin.zip
+          files: build/docker/deploy/${{ steps.plugin.outputs.name }}.zip
           generate_release_notes: true

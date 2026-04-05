@@ -4,11 +4,11 @@
 
 Build once from any Linux host and produce plugins for all three platforms:
 
-| Platform          | Output                          |
-| ----------------- | ------------------------------- |
-| Linux x86_64      | `MyPlugin/lin_x64/MyPlugin.xpl` |
-| Windows x86_64    | `MyPlugin/win_x64/MyPlugin.xpl` |
-| macOS (universal) | `MyPlugin/mac_x64/MyPlugin.xpl` |
+| Platform          | Output                                  |
+| ----------------- | --------------------------------------- |
+| Linux x86_64      | `<PluginName>/lin_x64/<PluginName>.xpl` |
+| Windows x86_64    | `<PluginName>/win_x64/<PluginName>.xpl` |
+| macOS (universal) | `<PluginName>/mac_x64/<PluginName>.xpl` |
 
 ## Prerequisites
 
@@ -31,6 +31,33 @@ Edit `CMakeUserPresets.json` and set `XPLANE_PLUGIN_DIR` to your X-Plane plugins
 ```
 
 This file is git-ignored so your local paths stay out of version control.
+
+## Customization
+
+All plugin identity is configured in one place — the top of `CMakeLists.txt`:
+
+```cmake
+set(PLUGIN_NAME "MyPlugin")
+set(PLUGIN_VERSION "0.1.0")
+set(PLUGIN_SIGNATURE "com.${PLUGIN_NAME}")
+set(PLUGIN_DESC "${PLUGIN_NAME} v${PLUGIN_VERSION}")
+set(IMGUI_FONT "Roboto-Medium.ttf")
+```
+
+These values propagate automatically to:
+
+- **`config.h`** — Generated at build time from `src/config.h.in` via CMake's `configure_file()`. Provides `PLUGIN_NAME`, `PLUGIN_VERSION`, `PLUGIN_SIGNATURE`, `PLUGIN_DESC`, and `IMGUI_FONT` as preprocessor defines for use in source code.
+- **Build scripts** (`scripts/build-all.sh`, `scripts/build-nomacos.sh`) — Receive the plugin name as a command-line argument from the CMake custom targets. Output directories and zip archives are named accordingly.
+- **GitHub Actions** (`.github/workflows/release.yml`) — Extracts the plugin name from `CMakeLists.txt` at CI time, so the Docker image, build command, and release artifact are all derived automatically.
+
+To customize your plugin, change `PLUGIN_NAME` and `PLUGIN_VERSION` in `CMakeLists.txt` — no other files need editing.
+
+### Additional customization
+
+1. **Add source files**: Add to the `SRC_FILES` list in `CMakeLists.txt`.
+2. **Add dependencies**: Consider using `FetchContent` (see the ImGui example in `CMakeLists.txt`).
+3. **Add resources**: Copy them in the `deploy` target.
+4. **ImGui font**: The `IMGUI_FONT` options are part of the Dear ImGui source tree in its `./misc/fonts` directory.
 
 ## Available Presets
 
@@ -57,12 +84,15 @@ cmake --build --preset local:install    # build & local plugin install
 These presets manage the Docker build environment and cross-compilation:
 
 ```bash
-cmake --build --preset docker:deploy         # cross-compile all platforms + zip
-cmake --build --preset docker:rebuild-image  # rebuild the Docker image
-cmake --build --preset docker:clean-image    # remove the Docker image
+cmake --build --preset docker:deploy           # cross-compile all platforms + zip
+cmake --build --preset docker:deploy-nomacos   # cross-compile Linux & Windows only + zip
+cmake --build --preset docker:rebuild-image    # rebuild the Docker image
+cmake --build --preset docker:clean-image      # remove the Docker image
 ```
 
 `docker:deploy` produces the final plugin directory and zip archive under `build/docker/deploy/`.
+
+`docker:deploy-nomacos` does the same but skips macOS.
 
 ## Project Structure
 
@@ -72,22 +102,17 @@ cmake --build --preset docker:clean-image    # remove the Docker image
 ├── CMakeUserPresets.json.example   # Local dev presets template
 ├── Dockerfile                      # Build environment (Ubuntu + Zig + CMake)
 ├── scripts/
-│   └── build-all.sh               # Cross-compile all platforms (runs in Docker)
+│   ├── build-all.sh               # Cross-compile all platforms (runs in Docker)
+│   └── build-nomacos.sh           # Cross-compile Linux & Windows (runs in Docker)
 ├── cmake/
 │   └── toolchains/                # Zig cross-compilation toolchains
 ├── src/
+│   ├── config.h.in                # Generated config template (plugin name, version, etc.)
 │   └── main.cpp                   # Plugin entry point (X-Plane API)
 └── .github/
     └── workflows/
         └── release.yml            # GitHub Actions: tag -> build -> release
 ```
-
-## Customizing CMakeLists.txt
-
-1. **Set plugin name, version, and ImGui font**: Set the `PLUGIN_NAME`, `PLUGIN_VERSION`, and `IMGUI_FONT`. Note the `IMGUI_FONT` built-in options are part of the Dear ImGui source tree in its `./misc/fonts` directory.
-2. **Add source files**: Add to `SRC_FILES` list.
-3. **Add dependencies**: Consider using `FetchContent` (see the ImGui example).
-4. **Add resources**: Copy them to the `deploy` target.
 
 ## Releasing
 

@@ -7,8 +7,10 @@ cmake_minimum_required(VERSION 3.25)
 #   to user defined ${PLUGIN_VERSION}
 
 #----------------------------------------------------------------------------
-set(PLUGIN_NAME "MyPlugin")
+set(PLUGIN_NAME "Flymate")
 set(PLUGIN_VERSION "0.1.0")
+set(PLUGIN_SIGNATURE "com.${PLUGIN_NAME}")
+set(PLUGIN_DESC "${PLUGIN_NAME} v${PLUGIN_VERSION}")
 set(IMGUI_FONT "Roboto-Medium.ttf")
 
 project(${PLUGIN_NAME} VERSION ${PLUGIN_VERSION} LANGUAGES C CXX)
@@ -25,6 +27,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(SRC_FILES
     src/main.cpp
+)
+
+# generated configuration file
+configure_file(
+    src/config.h.in
+    "${PROJECT_BINARY_DIR}/generated/config.h"
 )
 
 include(FetchContent)
@@ -67,6 +75,7 @@ add_library(${PROJECT_NAME} SHARED
 
 target_include_directories(${PROJECT_NAME} PRIVATE
     src
+    ${PROJECT_BINARY_DIR}/generated
     ${XPSDK_ROOT}/CHeaders/XPLM
     ${XPSDK_ROOT}/CHeaders/Widgets
     ${IMGUI_DIR}
@@ -182,9 +191,17 @@ add_dependencies(install-plugin deploy)
 # docker-deploy: cross-compile all platforms via Docker and produce release zip
 add_custom_target(docker-deploy
     COMMAND docker build -t ${DOCKER_IMAGE} "${CMAKE_SOURCE_DIR}"
-    COMMAND docker run --rm -v "${CMAKE_SOURCE_DIR}:/src" ${DOCKER_IMAGE} scripts/build-all.sh
+    COMMAND docker run --rm -v "${CMAKE_SOURCE_DIR}:/src" ${DOCKER_IMAGE} scripts/build-all.sh ${PROJECT_NAME}
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     COMMENT "Building release for all platforms via Docker"
+)
+
+# docker-deploy-nomacos: cross-compile Linux and Windows only via Docker
+add_custom_target(docker-deploy-nomacos
+    COMMAND docker build -t ${DOCKER_IMAGE} "${CMAKE_SOURCE_DIR}"
+    COMMAND docker run --rm -v "${CMAKE_SOURCE_DIR}:/src" ${DOCKER_IMAGE} scripts/build-nomacos.sh ${PROJECT_NAME}
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    COMMENT "Building release for Linux and Windows via Docker (no macOS)"
 )
 
 # docker-rebuild: rebuild the Docker build image

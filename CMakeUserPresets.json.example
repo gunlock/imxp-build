@@ -46,6 +46,13 @@
       ]
     },
     {
+      "name": "docker:deploy-nomacos",
+      "configurePreset": "config",
+      "targets": [
+        "docker-deploy-nomacos"
+      ]
+    },
+    {
       "name": "docker:rebuild-image",
       "configurePreset": "config",
       "targets": [

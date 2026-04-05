@@ -1,20 +1,20 @@
 #!/usr/bin/env bash
 #
-# Build for all platforms and produce the final X-Plane plugin directory.
+# Build for Linux and Windows only (no macOS) and produce the final
+# X-Plane plugin directory.
 #
 # Usage (inside Docker):
-#   scripts/build-all.sh <PluginName>
+#   scripts/build-nomacos.sh <PluginName>
 #
 # Output:
 #   <PluginName>/
 #   ├── lin_x64/<PluginName>.xpl
-#   ├── win_x64/<PluginName>.xpl
-#   └── mac_x64/<PluginName>.xpl   (universal binary: x86_64 + arm64)
+#   └── win_x64/<PluginName>.xpl
 
 set -euo pipefail
 
 PLUGIN_NAME="${1:?Usage: $0 <PluginName>}"
-PRESETS=(linux-x86 windows-x86 mac-x64 mac-arm64)
+PRESETS=(linux-x86 windows-x86)
 
 echo "=== Configuring and building all presets ==="
 for preset in "${PRESETS[@]}"; do
@@ -23,24 +23,14 @@ for preset in "${PRESETS[@]}"; do
   cmake --build --preset "$preset"
 done
 
-echo "=== Creating macOS universal binary ==="
-llvm-lipo-18 -create \
-  "build/docker/mac-x64/${PLUGIN_NAME}/mac_x64/${PLUGIN_NAME}.xpl" \
-  "build/docker/mac-arm64/${PLUGIN_NAME}/mac_x64/${PLUGIN_NAME}.xpl" \
-  -output "build/docker/mac-x64/${PLUGIN_NAME}/mac_x64/${PLUGIN_NAME}.universal.xpl"
-
-mv "build/docker/mac-x64/${PLUGIN_NAME}/mac_x64/${PLUGIN_NAME}.universal.xpl" \
-  "build/docker/mac-x64/${PLUGIN_NAME}/mac_x64/${PLUGIN_NAME}.xpl"
-
 DEPLOY_DIR=build/docker/deploy
 
 echo "=== Assembling final plugin directory ==="
 rm -rf "${DEPLOY_DIR}"
-mkdir -p "${DEPLOY_DIR}/${PLUGIN_NAME}/lin_x64" "${DEPLOY_DIR}/${PLUGIN_NAME}/win_x64" "${DEPLOY_DIR}/${PLUGIN_NAME}/mac_x64"
+mkdir -p "${DEPLOY_DIR}/${PLUGIN_NAME}/lin_x64" "${DEPLOY_DIR}/${PLUGIN_NAME}/win_x64"
 
 cp "build/docker/linux-x86/${PLUGIN_NAME}/lin_x64/${PLUGIN_NAME}.xpl" "${DEPLOY_DIR}/${PLUGIN_NAME}/lin_x64/"
 cp "build/docker/windows-x86/${PLUGIN_NAME}/win_x64/${PLUGIN_NAME}.xpl" "${DEPLOY_DIR}/${PLUGIN_NAME}/win_x64/"
-cp "build/docker/mac-x64/${PLUGIN_NAME}/mac_x64/${PLUGIN_NAME}.xpl" "${DEPLOY_DIR}/${PLUGIN_NAME}/mac_x64/"
 
 echo "=== Creating ${PLUGIN_NAME}.zip ==="
 (cd "${DEPLOY_DIR}" && zip -r "${PLUGIN_NAME}.zip" "${PLUGIN_NAME}/")
