@@ -161,6 +161,7 @@ add_custom_target(build
     COMMAND docker run --rm -v "${CMAKE_SOURCE_DIR}:/src" ${DOCKER_IMAGE} cmake --build --preset linux-x86
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     COMMENT "Building ${PROJECT_NAME} linux-x64 via Docker (zig c++)"
+    USES_TERMINAL
 )
 
 # deploy: assemble plugin directory layout under build/deploy/
@@ -194,6 +195,7 @@ add_custom_target(docker-deploy
     COMMAND docker run --rm -v "${CMAKE_SOURCE_DIR}:/src" ${DOCKER_IMAGE} scripts/build-all.sh ${PROJECT_NAME}
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     COMMENT "Building release for all platforms via Docker"
+    USES_TERMINAL
 )
 
 # docker-deploy-nomacos: cross-compile Linux and Windows only via Docker
@@ -202,6 +204,7 @@ add_custom_target(docker-deploy-nomacos
     COMMAND docker run --rm -v "${CMAKE_SOURCE_DIR}:/src" ${DOCKER_IMAGE} scripts/build-nomacos.sh ${PROJECT_NAME}
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     COMMENT "Building release for Linux and Windows via Docker (no macOS)"
+    USES_TERMINAL
 )
 
 # docker-rebuild: rebuild the Docker build image
@@ -209,6 +212,7 @@ add_custom_target(docker-rebuild
     COMMAND docker build -t ${DOCKER_IMAGE} "${CMAKE_SOURCE_DIR}"
     WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
     COMMENT "Rebuilding Docker image ${DOCKER_IMAGE} from Dockerfile"
+    USES_TERMINAL
 )
 
 # docker-clean-image: remove the Docker build image
